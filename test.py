@@ -8,9 +8,9 @@ class Grid:
     textual_positions = ['top_left', 'top_middle', 'top_right',
                          'middle_left', 'center', 'middle_right',
                          'bottom_left', 'bottom_middle', 'bottom_right']
-    def __init__(self, markers = "XO") -> None:
+    def __init__(self, markers: str = "XO") -> None:
         self.played_positions = dict()
-        self.markers = "XO"
+        self.markers = markers
     def is_empty(self) -> bool:
         return len(self.played_positions) == 0
     def is_full(self) -> bool:
@@ -181,6 +181,11 @@ class TicTacToeTest_XO(TicTacToeTest):
 class TicTacToeTest_OX(TicTacToeTest):
     def make_grid(self):
         return Grid("OX")
+    def test_alternating_play_marks(self):
+        self.assertEqual(self.grid.play('center'), 'O')
+        self.assertEqual(self.grid.play('top_left'), 'X')
+        self.assertEqual(self.grid.play('bottom_middle'), 'O')
+        self.assertEqual(self.grid.play('bottom_left'), 'X')
 
 if __name__ == '__main__':
     unittest.main()
