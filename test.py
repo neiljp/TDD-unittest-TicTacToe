@@ -13,6 +13,8 @@ class Grid:
                                   'bottom_left', 'bottom_middle', 'bottom_right'}
     def is_empty(self) -> bool:
         return len(self.played_positions) == 0
+    def is_full(self) -> bool:
+        return len(self.played_positions) == 9
     def play(self, position: str) -> Optional[str]:
         if position in self.played_positions:
             return None
@@ -54,6 +56,13 @@ class TicTacToeTest(unittest.TestCase):
                  'bottom_left', 'bottom_middle', 'bottom_right'}
         for move in moves:
             self.assertIsNotNone(self.grid.play(move), move)
+    def test_is_full_after_all_moves_made(self):
+        moves = {'top_left', 'top_middle', 'top_right',
+                 'middle_left', 'center', 'middle_right',
+                 'bottom_left', 'bottom_middle', 'bottom_right'}
+        for move in moves:
+            self.grid.play(move)
+        self.assertEqual(self.grid.is_full(), True)
 
 if __name__ == '__main__':
     unittest.main()
