@@ -26,12 +26,12 @@ class Grid:
     def get_winning_player(self) -> Optional[str]:
         if self.is_empty() or len(self.played_positions) < 5:
             return None
-        winning_lines = [{'top_left', 'middle_left', 'bottom_left'},
+        winning_lines = [{'top_left', 'middle_left', 'bottom_left'},  # Down
+                         {'top_middle', 'center', 'bottom_middle'},
                          {'top_right', 'middle_right', 'bottom_right'},
-                         {'top_left', 'top_middle', 'top_right'},
+                         {'top_left', 'top_middle', 'top_right'},  # Across
                          {'middle_left', 'center', 'middle_right'},
                          {'bottom_left', 'bottom_middle', 'bottom_right'},
-                         {'top_middle', 'center', 'bottom_middle'},
         ]
         for marker in self.markers:
             positions = {k for k, v in self.played_positions.items() if v is marker}
