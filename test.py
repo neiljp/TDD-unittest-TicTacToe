@@ -26,14 +26,12 @@ class Grid:
     def get_winning_player(self) -> Optional[str]:
         if self.is_empty() or len(self.played_positions) < 5:
             return None
-        X_positions = {k for k, v in self.played_positions.items() if v is 'X'}
-        O_positions = {k for k, v in self.played_positions.items() if v is 'O'}
         winning_lines = [{'top_left', 'middle_left', 'bottom_left'},
                          {'top_right', 'middle_right', 'bottom_right'}]
-        if len([line for line in winning_lines if X_positions.issuperset(line)]):
-            return 'X'
-        if len([line for line in winning_lines if O_positions.issuperset(line)]):
-            return 'O'
+        for marker in self.markers:
+            positions = {k for k, v in self.played_positions.items() if v is marker}
+            if len([line for line in winning_lines if positions.issuperset(line)]):
+                return marker
 
 class TicTacToeTest(unittest.TestCase):
     def setUp(self):
