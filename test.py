@@ -6,17 +6,15 @@ import unittest
 
 class Grid:
     def __init__(self) -> None:
-        self.played = False
         self.played_positions = dict()
         self.markers = "XO"
     def is_empty(self) -> bool:
-        return not self.played
+        return len(self.played_positions) == 0
     def play(self, position: str) -> Optional[str]:
         if position in self.played_positions:
             return None
         marker = self.markers[len(self.played_positions)%2]
         self.played_positions[position] = marker
-        self.played = True
         return marker
 
 class TicTacToeTest(unittest.TestCase):
