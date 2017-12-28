@@ -5,9 +5,9 @@ from typing import Optional
 import unittest
 
 class Grid:
-    textual_positions = {'top_left', 'top_middle', 'top_right',
+    textual_positions = ['top_left', 'top_middle', 'top_right',
                          'middle_left', 'center', 'middle_right',
-                         'bottom_left', 'bottom_middle', 'bottom_right'}
+                         'bottom_left', 'bottom_middle', 'bottom_right']
     def __init__(self) -> None:
         self.played_positions = dict()
         self.markers = "XO"
@@ -104,12 +104,14 @@ class TicTacToeTest(unittest.TestCase):
         for play in plays:
             self.grid.play(play)
         self.assertEqual(self.grid.get_winning_player(), 'O')
-    def _make_plays(self, x_plays, o_plays):
+    def _make_plays(self, x_plays, o_plays, grid=None):
+        if grid is None:
+            grid = self.grid
         plays = x_plays + o_plays
         plays[::2] = x_plays
         plays[1::2] = o_plays
         for play in plays:
-            self.grid.play(play)
+            grid.play(play)
     def test_O_player_should_win_on_top(self):
         X_plays = ['bottom_left', 'bottom_middle', 'center']
         O_plays = ['top_left', 'top_middle', 'top_right']
@@ -130,6 +132,15 @@ class TicTacToeTest(unittest.TestCase):
         O_plays = ['top_middle', 'center', 'bottom_middle']
         self._make_plays(X_plays, O_plays)
         self.assertEqual(self.grid.get_winning_player(), 'O')
+    def test_X_player_should_win_horizontally_x3(self):
+        X_plays = [[0,1,2], [3,4,5], [6,7,8]]
+        O_plays = [[3,4], [6,7], [0,1]]  # Abitrary valid other moves
+        for game_x, game_o in zip(X_plays, O_plays):
+            grid = Grid()
+            game_x = [Grid.textual_positions[i] for i in game_x]
+            game_o = [Grid.textual_positions[j] for j in game_o]
+            self._make_plays(game_x, game_o, grid)
+            self.assertEqual(grid.get_winning_player(), 'X', (game_x, game_o))
 
 if __name__ == '__main__':
     unittest.main()
