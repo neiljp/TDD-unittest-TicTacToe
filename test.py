@@ -29,11 +29,13 @@ class TicTacToeTest(unittest.TestCase):
         self.grid = Grid()
     def test_havegrid(self):
         assert(self.grid is not None)
-    def test_startgrid_is_empty(self):
+    def test_startgrid_is_empty_and_not_full(self):
         assert(self.grid.is_empty())
-    def test_not_empty_after_play_center(self):
+        self.assertFalse(self.grid.is_full())
+    def test_not_empty_and_not_full_after_play_center(self):
         assert(self.grid.play('center'))
         assert(not self.grid.is_empty())
+        self.assertFalse(self.grid.is_full())
     def test_play_center_twice_fails(self):
         assert(self.grid.play('center'))
         assert(not self.grid.play('center'))
