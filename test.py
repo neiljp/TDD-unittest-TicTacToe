@@ -100,14 +100,16 @@ class TicTacToeTest(unittest.TestCase):
         for play in plays:
             self.grid.play(play)
         self.assertEqual(self.grid.get_winning_player(), 'O')
+    def _make_plays(self, x_plays, o_plays):
+        plays = x_plays + o_plays
+        plays[::2] = x_plays
+        plays[1::2] = o_plays
+        for play in plays:
+            self.grid.play(play)
     def test_O_player_should_win_on_top(self):
         X_plays = ['bottom_left', 'bottom_middle', 'center']
         O_plays = ['top_left', 'top_middle', 'top_right']
-        plays = X_plays + O_plays
-        plays[::2] = X_plays
-        plays[1::2] = O_plays
-        for play in plays:
-            self.grid.play(play)
+        self._make_plays(X_plays, O_plays)
         self.assertEqual(self.grid.get_winning_player(), 'O')
 
 if __name__ == '__main__':
