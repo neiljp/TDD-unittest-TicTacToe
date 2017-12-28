@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
 
+from typing import Optional
+
 import unittest
 
 class Grid:
     def __init__(self) -> None:
         self.played = False
-        self.played_positions = set()
+        self.played_positions = dict()
+        self.markers = "XO"
     def is_empty(self) -> bool:
         return not self.played
-    def play(self, position: str) -> bool:
+    def play(self, position: str) -> Optional[str]:
         if position in self.played_positions:
-            return False
-        self.played_positions.add(position)
+            return None
+        marker = self.markers[len(self.played_positions)%2]
+        self.played_positions[position] = marker
         self.played = True
-        return True
+        return marker
 
 class TicTacToeTest(unittest.TestCase):
     def setUp(self):
@@ -34,6 +38,11 @@ class TicTacToeTest(unittest.TestCase):
     def test_play_center_then_top_left(self):
         assert(self.grid.play('center'))
         assert(self.grid.play('top_left'))
+    def test_alternating_play_marks(self):
+        self.assertEqual(self.grid.play('center'), 'X')
+        self.assertEqual(self.grid.play('top_left'), 'O')
+        self.assertEqual(self.grid.play('bottom_middle'), 'X')
+        self.assertEqual(self.grid.play('bottom_left'), 'O')
 
 if __name__ == '__main__':
     unittest.main()
