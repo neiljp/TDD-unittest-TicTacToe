@@ -29,6 +29,7 @@ class Grid:
         winning_lines = [{'top_left', 'middle_left', 'bottom_left'},
                          {'top_right', 'middle_right', 'bottom_right'},
                          {'top_left', 'top_middle', 'top_right'},
+                         {'middle_left', 'center', 'middle_right'},
                          {'bottom_left', 'bottom_middle', 'bottom_right'},
         ]
         for marker in self.markers:
@@ -116,6 +117,11 @@ class TicTacToeTest(unittest.TestCase):
     def test_O_player_should_win_on_bottom(self):
         X_plays = ['top_left', 'top_middle', 'center']
         O_plays = ['bottom_left', 'bottom_middle', 'bottom_right']
+        self._make_plays(X_plays, O_plays)
+        self.assertEqual(self.grid.get_winning_player(), 'O')
+    def test_O_player_should_win_middle_horizontally(self):
+        X_plays = ['top_left', 'top_middle', 'bottom_left']
+        O_plays = ['middle_left', 'center', 'middle_right']
         self._make_plays(X_plays, O_plays)
         self.assertEqual(self.grid.get_winning_player(), 'O')
 
