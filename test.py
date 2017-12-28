@@ -32,6 +32,8 @@ class Grid:
                          {'top_left', 'top_middle', 'top_right'},  # Across
                          {'middle_left', 'center', 'middle_right'},
                          {'bottom_left', 'bottom_middle', 'bottom_right'},
+                         {'top_left', 'center', 'bottom_right'},  # Diagonal
+                         {'top_right', 'center', 'bottom_left'},
         ]
         for marker in self.markers:
             positions = {k for k, v in self.played_positions.items() if v is marker}
@@ -144,6 +146,15 @@ class TicTacToeTest(unittest.TestCase):
     def test_X_player_should_win_vertically_x3(self):
         X_plays = [[0,3,6], [1,4,7], [2,5,8]]
         O_plays = [[1,2], [2,3], [3,4]]  # Abitrary valid other moves
+        for game_x, game_o in zip(X_plays, O_plays):
+            grid = Grid()
+            game_x = [Grid.textual_positions[i] for i in game_x]
+            game_o = [Grid.textual_positions[j] for j in game_o]
+            self._make_plays(game_x, game_o, grid)
+            self.assertEqual(grid.get_winning_player(), 'X', (game_x, game_o))
+    def test_X_player_should_win_diagonally_x2(self):
+        X_plays = [[0,4,8], [2,4,6]]
+        O_plays = [[1,2], [3,5]]  # Abitrary valid other moves
         for game_x, game_o in zip(X_plays, O_plays):
             grid = Grid()
             game_x = [Grid.textual_positions[i] for i in game_x]
