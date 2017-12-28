@@ -32,6 +32,7 @@ class Grid:
             positions = {k for k, v in self.played_positions.items() if v is marker}
             if len([line for line in winning_lines if positions.issuperset(line)]):
                 return marker
+        return None
 
 class TicTacToeTest(unittest.TestCase):
     def setUp(self):
