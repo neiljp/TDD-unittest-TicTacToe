@@ -26,10 +26,12 @@ class Grid:
     def get_winning_player(self) -> Optional[str]:
         if self.is_empty():
             return None
-        X = [v for v in self.played_positions.values() if v is 'X']
-        if not self.is_empty() and len(X) < 3:
+        X_positions = {k for k, v in self.played_positions.items() if v is 'X'}
+        if len(X_positions) < 3:
             return None
-        return 'X'
+        winning_line = {'top_left', 'middle_left', 'bottom_left'}
+        if X_positions.issuperset(winning_line):
+            return 'X'
 
 class TicTacToeTest(unittest.TestCase):
     def setUp(self):
@@ -70,6 +72,11 @@ class TicTacToeTest(unittest.TestCase):
         self.assertEqual(self.grid.get_winning_player(), None)
     def test_no_player_won_after_X_plays_once(self):
         self.grid.play('center')
+        self.assertEqual(self.grid.get_winning_player(), None)
+    def test_many_plays_but_no_player_won_yet(self):
+        plays = ['top_left', 'top_right', 'middle_left', 'middle_right', 'center']
+        for play in plays:
+            self.grid.play(play)
         self.assertEqual(self.grid.get_winning_player(), None)
     def test_X_player_should_win(self):
         plays = ['top_left', 'top_right', 'middle_left', 'middle_right', 'bottom_left']
