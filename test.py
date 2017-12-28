@@ -24,6 +24,8 @@ class Grid:
         self.played_positions[position] = marker
         return marker
     def get_winning_player(self) -> Optional[str]:
+        if not self.is_empty():
+            return 'X'
         return None
 
 class TicTacToeTest(unittest.TestCase):
@@ -63,6 +65,11 @@ class TicTacToeTest(unittest.TestCase):
         self.assertEqual(self.grid.is_full(), True)
     def test_no_player_won_with_empty_grid(self):
         self.assertEqual(self.grid.get_winning_player(), None)
+    def test_X_player_should_win(self):
+        plays = ['top_left', 'top_right', 'middle_left', 'middle_right', 'bottom_left']
+        for play in plays:
+            self.grid.play(play)
+        self.assertEqual(self.grid.get_winning_player(), 'X')
 
 if __name__ == '__main__':
     unittest.main()
