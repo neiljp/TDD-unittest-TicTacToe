@@ -42,6 +42,9 @@ class Grid:
         return None
 
 class TicTacToeTest(unittest.TestCase):
+    pass
+
+class TicTacToeTest_XO(TicTacToeTest):
     def setUp(self):
         self.grid = Grid()
     def test_havegrid(self):
@@ -173,6 +176,9 @@ class TicTacToeTest(unittest.TestCase):
         O_plays = [[0,4,8], [2,4,6]]
         for grid, x, o in self.get_grids_for_multiple_encoded_plays(X_plays, O_plays):
             self.assertEqual(grid.get_winning_player(), 'O', (x, o))
+
+class TicTacToeTest_OX(TicTacToeTest):
+    pass
 
 if __name__ == '__main__':
     unittest.main()
