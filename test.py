@@ -35,7 +35,7 @@ class Grid:
         winning_lines = [winning_line, winning_line_2]
         if len([line for line in winning_lines if X_positions.issuperset(line)]):
             return 'X'
-        if O_positions.issuperset(winning_line_2):
+        if len([line for line in winning_lines if O_positions.issuperset(line)]):
             return 'O'
 
 class TicTacToeTest(unittest.TestCase):
@@ -93,8 +93,13 @@ class TicTacToeTest(unittest.TestCase):
         for play in plays:
             self.grid.play(play)
         self.assertEqual(self.grid.get_winning_player(), 'X')
-    def test_O_player_should_win(self):
+    def test_O_player_should_win_on_left(self):
         plays = ['top_left', 'top_right', 'middle_left', 'middle_right', 'center', 'bottom_right']
+        for play in plays:
+            self.grid.play(play)
+        self.assertEqual(self.grid.get_winning_player(), 'O')
+    def test_O_player_should_win_on_right(self):
+        plays = ['top_right', 'top_left', 'middle_right', 'middle_left', 'center', 'bottom_left']
         for play in plays:
             self.grid.play(play)
         self.assertEqual(self.grid.get_winning_player(), 'O')
