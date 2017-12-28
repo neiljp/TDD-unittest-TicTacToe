@@ -5,12 +5,12 @@ from typing import Optional
 import unittest
 
 class Grid:
+    textual_positions = {'top_left', 'top_middle', 'top_right',
+                         'middle_left', 'center', 'middle_right',
+                         'bottom_left', 'bottom_middle', 'bottom_right'}
     def __init__(self) -> None:
         self.played_positions = dict()
         self.markers = "XO"
-        self.allowed_positions = {'top_left', 'top_middle', 'top_right',
-                                  'middle_left', 'center', 'middle_right',
-                                  'bottom_left', 'bottom_middle', 'bottom_right'}
     def is_empty(self) -> bool:
         return len(self.played_positions) == 0
     def is_full(self) -> bool:
@@ -18,7 +18,7 @@ class Grid:
     def play(self, position: str) -> Optional[str]:
         if position in self.played_positions:
             return None
-        if position not in self.allowed_positions:
+        if position not in self.textual_positions:
             return None
         marker = self.markers[len(self.played_positions)%2]
         self.played_positions[position] = marker
@@ -51,16 +51,10 @@ class TicTacToeTest(unittest.TestCase):
     def test_bad_play_position(self):
         self.assertEqual(self.grid.play('cheese'), None)
     def test_all_textual_moves(self):
-        moves = {'top_left', 'top_middle', 'top_right',
-                 'middle_left', 'center', 'middle_right',
-                 'bottom_left', 'bottom_middle', 'bottom_right'}
-        for move in moves:
+        for move in Grid.textual_positions:
             self.assertIsNotNone(self.grid.play(move), move)
     def test_is_full_after_all_moves_made(self):
-        moves = {'top_left', 'top_middle', 'top_right',
-                 'middle_left', 'center', 'middle_right',
-                 'bottom_left', 'bottom_middle', 'bottom_right'}
-        for move in moves:
+        for move in Grid.textual_positions:
             self.grid.play(move)
         self.assertEqual(self.grid.is_full(), True)
 
