@@ -24,12 +24,10 @@ class Grid:
         self.played_positions[position] = marker
         return marker
     def get_winning_player(self) -> Optional[str]:
-        if self.is_empty():
+        if self.is_empty() or len(self.played_positions) < 5:
             return None
         X_positions = {k for k, v in self.played_positions.items() if v is 'X'}
         O_positions = {k for k, v in self.played_positions.items() if v is 'O'}
-        if len(X_positions)+len(O_positions) < 5:
-            return None
         winning_line = {'top_left', 'middle_left', 'bottom_left'}
         winning_line_2 = {'top_right', 'middle_right', 'bottom_right'}
         winning_lines = [winning_line, winning_line_2]
