@@ -27,11 +27,15 @@ class Grid:
         if self.is_empty():
             return None
         X_positions = {k for k, v in self.played_positions.items() if v is 'X'}
-        if len(X_positions) < 3:
+        O_positions = {k for k, v in self.played_positions.items() if v is 'O'}
+        if len(X_positions)+len(O_positions) < 5:
             return None
         winning_line = {'top_left', 'middle_left', 'bottom_left'}
         if X_positions.issuperset(winning_line):
             return 'X'
+        winning_line_2 = {'top_right', 'middle_right', 'bottom_right'}
+        if O_positions.issuperset(winning_line_2):
+            return 'O'
 
 class TicTacToeTest(unittest.TestCase):
     def setUp(self):
@@ -83,6 +87,11 @@ class TicTacToeTest(unittest.TestCase):
         for play in plays:
             self.grid.play(play)
         self.assertEqual(self.grid.get_winning_player(), 'X')
+    def test_O_player_should_win(self):
+        plays = ['top_left', 'top_right', 'middle_left', 'middle_right', 'center', 'bottom_right']
+        for play in plays:
+            self.grid.play(play)
+        self.assertEqual(self.grid.get_winning_player(), 'O')
 
 if __name__ == '__main__':
     unittest.main()
