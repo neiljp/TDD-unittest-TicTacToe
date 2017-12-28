@@ -5,12 +5,15 @@ import unittest
 class Grid:
     def __init__(self) -> None:
         self.played = False
+        self.played_positions = set()
     def is_empty(self) -> bool:
         return not self.played
     def play(self, position: str) -> bool:
-        clear_position = not self.played
+        if position in self.played_positions:
+            return False
+        self.played_positions.add(position)
         self.played = True
-        return clear_position
+        return True
 
 class TicTacToeTest(unittest.TestCase):
     def setUp(self):
@@ -25,6 +28,9 @@ class TicTacToeTest(unittest.TestCase):
     def test_play_center_twice_fails(self):
         assert(self.grid.play('center'))
         assert(not self.grid.play('center'))
+    def test_play_center_then_top_left(self):
+        assert(self.grid.play('center'))
+        assert(self.grid.play('top_left'))
 
 if __name__ == '__main__':
     unittest.main()
