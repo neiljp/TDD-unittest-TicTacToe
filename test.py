@@ -42,11 +42,10 @@ class Grid:
         return None
 
 class TicTacToeTest(unittest.TestCase):
-    pass
-
-class TicTacToeTest_XO(TicTacToeTest):
+    def make_grid(self):
+        return Grid()
     def setUp(self):
-        self.grid = Grid()
+        self.grid = self.make_grid()
     def test_havegrid(self):
         assert(self.grid is not None)
     def test_startgrid_is_empty_and_not_full(self):
@@ -65,11 +64,6 @@ class TicTacToeTest_XO(TicTacToeTest):
     def test_play_center_then_top_left(self):
         assert(self.grid.play('center'))
         assert(self.grid.play('top_left'))
-    def test_alternating_play_marks(self):
-        self.assertEqual(self.grid.play('center'), 'X')
-        self.assertEqual(self.grid.play('top_left'), 'O')
-        self.assertEqual(self.grid.play('bottom_middle'), 'X')
-        self.assertEqual(self.grid.play('bottom_left'), 'O')
     def test_bad_play_position(self):
         self.assertEqual(self.grid.play('cheese'), None)
     def test_all_textual_moves(self):
@@ -84,6 +78,13 @@ class TicTacToeTest_XO(TicTacToeTest):
     def test_no_player_won_after_X_plays_once(self):
         self.grid.play('center')
         self.assertEqual(self.grid.get_winning_player(), None)
+
+class TicTacToeTest_XO(TicTacToeTest):
+    def test_alternating_play_marks(self):
+        self.assertEqual(self.grid.play('center'), 'X')
+        self.assertEqual(self.grid.play('top_left'), 'O')
+        self.assertEqual(self.grid.play('bottom_middle'), 'X')
+        self.assertEqual(self.grid.play('bottom_left'), 'O')
     def test_many_plays_but_no_player_won_yet(self):
         plays = ['top_left', 'top_right', 'middle_left', 'middle_right', 'center']
         for play in plays:
@@ -140,7 +141,7 @@ class TicTacToeTest_XO(TicTacToeTest):
     def get_grids_for_multiple_encoded_plays(self, x_plays, o_plays):
         grids = []
         for game_x, game_o in zip(x_plays, o_plays):
-            grid = Grid()
+            grid = self.make_grid()
             game_x = [Grid.textual_positions[i] for i in game_x]
             game_o = [Grid.textual_positions[j] for j in game_o]
             self._make_plays(game_x, game_o, grid)
