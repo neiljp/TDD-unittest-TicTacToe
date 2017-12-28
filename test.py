@@ -8,13 +8,15 @@ class Grid:
     def __init__(self) -> None:
         self.played_positions = dict()
         self.markers = "XO"
+        self.allowed_positions = {'top_left', 'top_middle', 'top_right',
+                                  'middle_left', 'center', 'middle_right',
+                                  'bottom_left', 'bottom_middle', 'bottom_right'}
     def is_empty(self) -> bool:
         return len(self.played_positions) == 0
     def play(self, position: str) -> Optional[str]:
         if position in self.played_positions:
             return None
-        allowed_positions = {'center', 'top_left', 'bottom_left', 'bottom_middle'}
-        if position not in allowed_positions:
+        if position not in self.allowed_positions:
             return None
         marker = self.markers[len(self.played_positions)%2]
         self.played_positions[position] = marker
@@ -46,6 +48,12 @@ class TicTacToeTest(unittest.TestCase):
         self.assertEqual(self.grid.play('bottom_left'), 'O')
     def test_bad_play_position(self):
         self.assertEqual(self.grid.play('cheese'), None)
+    def test_all_textual_moves(self):
+        moves = {'top_left', 'top_middle', 'top_right',
+                 'middle_left', 'center', 'middle_right',
+                 'bottom_left', 'bottom_middle', 'bottom_right'}
+        for move in moves:
+            self.assertIsNotNone(self.grid.play(move), move)
 
 if __name__ == '__main__':
     unittest.main()
