@@ -13,6 +13,9 @@ class Grid:
     def play(self, position: str) -> Optional[str]:
         if position in self.played_positions:
             return None
+        allowed_positions = {'center', 'top_left', 'bottom_left', 'bottom_middle'}
+        if position not in allowed_positions:
+            return None
         marker = self.markers[len(self.played_positions)%2]
         self.played_positions[position] = marker
         return marker
@@ -41,6 +44,8 @@ class TicTacToeTest(unittest.TestCase):
         self.assertEqual(self.grid.play('top_left'), 'O')
         self.assertEqual(self.grid.play('bottom_middle'), 'X')
         self.assertEqual(self.grid.play('bottom_left'), 'O')
+    def test_bad_play_position(self):
+        self.assertEqual(self.grid.play('cheese'), None)
 
 if __name__ == '__main__':
     unittest.main()
