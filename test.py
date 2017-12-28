@@ -28,6 +28,9 @@ class TicTacToeTest(unittest.TestCase):
     def test_play_center_twice_fails(self):
         assert(self.grid.play('center'))
         assert(not self.grid.play('center'))
+    def test_play_top_left_twice(self):
+        assert(self.grid.play('top_left'))
+        assert(not self.grid.play('top_left'))
     def test_play_center_then_top_left(self):
         assert(self.grid.play('center'))
         assert(self.grid.play('top_left'))
