@@ -7,8 +7,10 @@ class Grid:
         self.played = False
     def is_empty(self) -> bool:
         return not self.played
-    def play(self, position: str) -> None:
+    def play(self, position: str) -> bool:
+        clear_position = not self.played
         self.played = True
+        return clear_position
 
 class TicTacToeTest(unittest.TestCase):
     def test_havegrid(self):
@@ -17,10 +19,14 @@ class TicTacToeTest(unittest.TestCase):
     def test_startgrid_is_empty(self):
         grid = Grid()
         assert(grid.is_empty())
-    def test_play_center_after_empty(self):
+    def test_not_empty_after_play_center(self):
         grid = Grid()
-        grid.play('center')
+        assert(grid.play('center'))
         assert(not grid.is_empty())
+    def test_play_center_twice_fails(self):
+        grid = Grid()
+        assert(grid.play('center'))
+        assert(not grid.play('center'))
 
 if __name__ == '__main__':
     unittest.main()
