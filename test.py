@@ -4,11 +4,16 @@ from typing import Optional
 
 import unittest
 
+class InvalidMarkers(Exception):
+    pass
+
 class Grid:
     textual_positions = ['top_left', 'top_middle', 'top_right',
                          'middle_left', 'center', 'middle_right',
                          'bottom_left', 'bottom_middle', 'bottom_right']
     def __init__(self, markers: str = "XO") -> None:
+        if len(markers) != 2:
+            raise InvalidMarkers()
         self.played_positions = dict()
         self.markers = markers
     def is_empty(self) -> bool:
@@ -46,6 +51,12 @@ class TicTacToeTest(unittest.TestCase):
         return Grid()
     def setUp(self):
         self.grid = self.make_grid()
+    def test_too_few_markers(self):
+        with self.assertRaises(InvalidMarkers):
+            grid = Grid("O")
+    def test_too_many_markers(self):
+        with self.assertRaises(InvalidMarkers):
+            grid = Grid("OXY")
     def test_havegrid(self):
         assert(self.grid is not None)
     def test_startgrid_is_empty_and_not_full(self):
