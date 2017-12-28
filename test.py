@@ -75,7 +75,7 @@ class TicTacToeTest(unittest.TestCase):
         self.assertEqual(self.grid.is_full(), True)
     def test_no_player_won_with_empty_grid(self):
         self.assertEqual(self.grid.get_winning_player(), None)
-    def test_no_player_won_after_X_plays_once(self):
+    def test_no_player_won_after_one_play(self):
         self.grid.play('center')
         self.assertEqual(self.grid.get_winning_player(), None)
 
