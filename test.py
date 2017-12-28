@@ -8,7 +8,7 @@ class Grid:
     textual_positions = ['top_left', 'top_middle', 'top_right',
                          'middle_left', 'center', 'middle_right',
                          'bottom_left', 'bottom_middle', 'bottom_right']
-    def __init__(self) -> None:
+    def __init__(self, markers = "XO") -> None:
         self.played_positions = dict()
         self.markers = "XO"
     def is_empty(self) -> bool:
@@ -179,7 +179,8 @@ class TicTacToeTest_XO(TicTacToeTest):
             self.assertEqual(grid.get_winning_player(), 'O', (x, o))
 
 class TicTacToeTest_OX(TicTacToeTest):
-    pass
+    def make_grid(self):
+        return Grid("OX")
 
 if __name__ == '__main__':
     unittest.main()
