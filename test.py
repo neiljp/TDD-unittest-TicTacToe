@@ -125,88 +125,84 @@ class TicTacToeTest(unittest.TestCase):
             grids.append((grid, game_x, game_o))
         return grids
 
-class TicTacToeTest_XO(TicTacToeTest):
-    markers = ["X", "O"]
-    def test_X_player_should_win_on_left(self):
+    def test_first_player_should_win_on_left(self):
         plays = ['top_left', 'top_right', 'middle_left', 'middle_right', 'bottom_left']
         for play in plays:
             self.grid.play(play)
-        self.assertEqual(self.grid.get_winning_player(), 'X')
-    def test_X_player_should_win_on_right(self):
+        self.assertEqual(self.grid.get_winning_player(), self.markers[0])
+    def test_first_player_should_win_on_right(self):
         plays = ['top_right', 'top_left', 'middle_right', 'middle_left', 'bottom_right']
         for play in plays:
             self.grid.play(play)
-        self.assertEqual(self.grid.get_winning_player(), 'X')
-    def test_O_player_should_win_on_left(self):
+        self.assertEqual(self.grid.get_winning_player(), self.markers[0])
+    def test_second_player_should_win_on_left(self):
         plays = ['top_left', 'top_right', 'middle_left', 'middle_right', 'center', 'bottom_right']
         for play in plays:
             self.grid.play(play)
-        self.assertEqual(self.grid.get_winning_player(), 'O')
-    def test_O_player_should_win_on_right(self):
+        self.assertEqual(self.grid.get_winning_player(), self.markers[1])
+    def test_second_player_should_win_on_right(self):
         plays = ['top_right', 'top_left', 'middle_right', 'middle_left', 'center', 'bottom_left']
         for play in plays:
             self.grid.play(play)
-        self.assertEqual(self.grid.get_winning_player(), 'O')
-    def test_O_player_should_win_on_top(self):
+        self.assertEqual(self.grid.get_winning_player(), self.markers[1])
+    def test_second_player_should_win_on_top(self):
         X_plays = ['bottom_left', 'bottom_middle', 'center']
         O_plays = ['top_left', 'top_middle', 'top_right']
         self._make_plays(X_plays, O_plays)
-        self.assertEqual(self.grid.get_winning_player(), 'O')
-    def test_O_player_should_win_on_bottom(self):
+        self.assertEqual(self.grid.get_winning_player(), self.markers[1])
+    def test_second_player_should_win_on_bottom(self):
         X_plays = ['top_left', 'top_middle', 'center']
         O_plays = ['bottom_left', 'bottom_middle', 'bottom_right']
         self._make_plays(X_plays, O_plays)
-        self.assertEqual(self.grid.get_winning_player(), 'O')
-    def test_O_player_should_win_middle_horizontally(self):
+        self.assertEqual(self.grid.get_winning_player(), self.markers[1])
+    def test_second_player_should_win_middle_horizontally(self):
         X_plays = ['top_left', 'top_middle', 'bottom_left']
         O_plays = ['middle_left', 'center', 'middle_right']
         self._make_plays(X_plays, O_plays)
-        self.assertEqual(self.grid.get_winning_player(), 'O')
-    def test_O_player_should_win_middle_vertically(self):
+        self.assertEqual(self.grid.get_winning_player(), self.markers[1])
+    def test_second_player_should_win_middle_vertically(self):
         X_plays = ['top_left', 'bottom_right', 'bottom_left']
         O_plays = ['top_middle', 'center', 'bottom_middle']
         self._make_plays(X_plays, O_plays)
-        self.assertEqual(self.grid.get_winning_player(), 'O')
-    def test_X_player_should_win_horizontally_x3(self):
+        self.assertEqual(self.grid.get_winning_player(), self.markers[1])
+    def test_first_player_should_win_horizontally_x3(self):
         X_plays = [[0,1,2], [3,4,5], [6,7,8]]
         O_plays = [[3,4], [6,7], [0,1]]  # Abitrary valid other moves
         for grid, x, o in self._get_grids_for_multiple_encoded_plays(X_plays, O_plays):
-            self.assertEqual(grid.get_winning_player(), 'X', (x, o))
-    def test_X_player_should_win_vertically_x3(self):
+            self.assertEqual(grid.get_winning_player(), self.markers[0], (x, o))
+    def test_first_player_should_win_vertically_x3(self):
         X_plays = [[0,3,6], [1,4,7], [2,5,8]]
         O_plays = [[1,2], [2,3], [3,4]]  # Abitrary valid other moves
         for grid, x, o in self._get_grids_for_multiple_encoded_plays(X_plays, O_plays):
-            self.assertEqual(grid.get_winning_player(), 'X', (x, o))
-    def test_X_player_should_win_diagonally_x2(self):
+            self.assertEqual(grid.get_winning_player(), self.markers[0], (x, o))
+    def test_first_player_should_win_diagonally_x2(self):
         X_plays = [[0,4,8], [2,4,6]]
         O_plays = [[1,2], [3,5]]  # Abitrary valid other moves
         for grid, x, o in self._get_grids_for_multiple_encoded_plays(X_plays, O_plays):
-            self.assertEqual(grid.get_winning_player(), 'X', (x, o))
-    def test_O_player_should_win_horizontally_x3(self):
+            self.assertEqual(grid.get_winning_player(), self.markers[0], (x, o))
+    def test_second_player_should_win_horizontally_x3(self):
         X_plays = [[0,1,6], [3,4,1], [6,7,3]]  # Abitrary valid other moves
         O_plays = [[3,4,5], [6,7,8], [0,1,2]]
         for grid, x, o in self._get_grids_for_multiple_encoded_plays(X_plays, O_plays):
-            self.assertEqual(grid.get_winning_player(), 'O', (x, o))
-    def test_O_player_should_win_vertically_x3(self):
+            self.assertEqual(grid.get_winning_player(), self.markers[1], (x, o))
+    def test_second_player_should_win_vertically_x3(self):
         X_plays = [[0,3,5], [1,4,5], [1,4,6]]  # Abitrary valid other moves
         O_plays = [[1,4,7], [0,3,6], [2,5,8]]
         for grid, x, o in self._get_grids_for_multiple_encoded_plays(X_plays, O_plays):
-            self.assertEqual(grid.get_winning_player(), 'O', (x, o))
-    def test_O_player_should_win_diagonally_x2(self):
+            self.assertEqual(grid.get_winning_player(), self.markers[1], (x, o))
+    def test_second_player_should_win_diagonally_x2(self):
         X_plays = [[1,3,7], [1,0,3]]  # Abitrary valid other moves
         O_plays = [[0,4,8], [2,4,6]]
         for grid, x, o in self._get_grids_for_multiple_encoded_plays(X_plays, O_plays):
-            self.assertEqual(grid.get_winning_player(), 'O', (x, o))
+            self.assertEqual(grid.get_winning_player(), self.markers[1], (x, o))
+
+class TicTacToeTest_XO(TicTacToeTest):
+    markers = ["X", "O"]
 
 class TicTacToeTest_OX(TicTacToeTest):
     markers = ["O", "X"]
     def make_grid(self):
         return Grid("OX")
-    def test_O_player_should_win_diagonally_x2(self):
-        O_plays = [[0,4,8], [2,4,6]]
-        X_plays = [[1,3,7], [1,0,3]]  # Abitrary valid other moves
-        for grid, x, o in self._get_grids_for_multiple_encoded_plays(O_plays, X_plays):
-            self.assertEqual(grid.get_winning_player(), 'O', (x, o))
 
 class TicTacToeTest_star_plus(TicTacToeTest):  # Demonstration of arbitrary marker pairs
     markers = ["*", "+"]
