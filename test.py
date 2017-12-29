@@ -49,8 +49,10 @@ class Grid:
         return None
 
 class TicTacToeTest(unittest.TestCase):
+    markers = ["X", "O"]
     def make_grid(self):
         return Grid()
+
     def setUp(self):
         self.grid = self.make_grid()
     def test_too_few_markers(self):
@@ -94,6 +96,16 @@ class TicTacToeTest(unittest.TestCase):
     def test_no_player_won_after_one_play(self):
         self.grid.play('center')
         self.assertEqual(self.grid.get_winning_player(), None)
+    def test_alternating_play_marks(self):
+        self.assertEqual(self.grid.play('center'), self.markers[0])
+        self.assertEqual(self.grid.play('top_left'), self.markers[1])
+        self.assertEqual(self.grid.play('bottom_middle'), self.markers[0])
+        self.assertEqual(self.grid.play('bottom_left'), self.markers[1])
+    def test_many_plays_but_no_player_won_yet(self):
+        plays = ['top_left', 'top_right', 'middle_left', 'middle_right', 'center']
+        for play in plays:
+            self.grid.play(play)
+        self.assertEqual(self.grid.get_winning_player(), None)
 
     def _make_plays(self, first_plays, second_plays, grid=None):
         if grid is None:
@@ -114,16 +126,7 @@ class TicTacToeTest(unittest.TestCase):
         return grids
 
 class TicTacToeTest_XO(TicTacToeTest):
-    def test_alternating_play_marks(self):
-        self.assertEqual(self.grid.play('center'), 'X')
-        self.assertEqual(self.grid.play('top_left'), 'O')
-        self.assertEqual(self.grid.play('bottom_middle'), 'X')
-        self.assertEqual(self.grid.play('bottom_left'), 'O')
-    def test_many_plays_but_no_player_won_yet(self):
-        plays = ['top_left', 'top_right', 'middle_left', 'middle_right', 'center']
-        for play in plays:
-            self.grid.play(play)
-        self.assertEqual(self.grid.get_winning_player(), None)
+    markers = ["X", "O"]
     def test_X_player_should_win_on_left(self):
         plays = ['top_left', 'top_right', 'middle_left', 'middle_right', 'bottom_left']
         for play in plays:
@@ -196,13 +199,9 @@ class TicTacToeTest_XO(TicTacToeTest):
             self.assertEqual(grid.get_winning_player(), 'O', (x, o))
 
 class TicTacToeTest_OX(TicTacToeTest):
+    markers = ["O", "X"]
     def make_grid(self):
         return Grid("OX")
-    def test_alternating_play_marks(self):
-        self.assertEqual(self.grid.play('center'), 'O')
-        self.assertEqual(self.grid.play('top_left'), 'X')
-        self.assertEqual(self.grid.play('bottom_middle'), 'O')
-        self.assertEqual(self.grid.play('bottom_left'), 'X')
     def test_O_player_should_win_diagonally_x2(self):
         O_plays = [[0,4,8], [2,4,6]]
         X_plays = [[1,3,7], [1,0,3]]  # Abitrary valid other moves
@@ -210,13 +209,9 @@ class TicTacToeTest_OX(TicTacToeTest):
             self.assertEqual(grid.get_winning_player(), 'O', (x, o))
 
 class TicTacToeTest_star_plus(TicTacToeTest):  # Demonstration of arbitrary marker pairs
+    markers = ["*", "+"]
     def make_grid(self):
         return Grid("*+")
-    def test_alternating_play_marks(self):
-        self.assertEqual(self.grid.play('center'), '*')
-        self.assertEqual(self.grid.play('top_left'), '+')
-        self.assertEqual(self.grid.play('bottom_middle'), '*')
-        self.assertEqual(self.grid.play('bottom_left'), '+')
 
 if __name__ == '__main__':
     unittest.main()
