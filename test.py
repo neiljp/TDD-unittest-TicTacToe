@@ -95,17 +95,17 @@ class TicTacToeTest(unittest.TestCase):
         self.grid.play('center')
         self.assertEqual(self.grid.get_winning_player(), None)
 
-    def _make_plays(self, x_plays, o_plays, grid=None):
+    def _make_plays(self, first_plays, second_plays, grid=None):
         if grid is None:
             grid = self.grid
-        plays = x_plays + o_plays
-        plays[::2] = x_plays
-        plays[1::2] = o_plays
+        plays = first_plays + second_plays
+        plays[::2] = first_plays
+        plays[1::2] = second_plays
         for play in plays:
             grid.play(play)
-    def _get_grids_for_multiple_encoded_plays(self, x_plays, o_plays):
+    def _get_grids_for_multiple_encoded_plays(self, first_plays, second_plays):
         grids = []
-        for game_x, game_o in zip(x_plays, o_plays):
+        for game_x, game_o in zip(first_plays, second_plays):
             grid = self.make_grid()
             game_x = [Grid.textual_positions[i] for i in game_x]
             game_o = [Grid.textual_positions[j] for j in game_o]
@@ -203,6 +203,11 @@ class TicTacToeTest_OX(TicTacToeTest):
         self.assertEqual(self.grid.play('top_left'), 'X')
         self.assertEqual(self.grid.play('bottom_middle'), 'O')
         self.assertEqual(self.grid.play('bottom_left'), 'X')
+    def test_O_player_should_win_diagonally_x2(self):
+        O_plays = [[0,4,8], [2,4,6]]
+        X_plays = [[1,3,7], [1,0,3]]  # Abitrary valid other moves
+        for grid, x, o in self._get_grids_for_multiple_encoded_plays(O_plays, X_plays):
+            self.assertEqual(grid.get_winning_player(), 'O', (x, o))
 
 if __name__ == '__main__':
     unittest.main()
