@@ -209,5 +209,14 @@ class TicTacToeTest_OX(TicTacToeTest):
         for grid, x, o in self._get_grids_for_multiple_encoded_plays(O_plays, X_plays):
             self.assertEqual(grid.get_winning_player(), 'O', (x, o))
 
+class TicTacToeTest_star_plus(TicTacToeTest):  # Demonstration of arbitrary marker pairs
+    def make_grid(self):
+        return Grid("*+")
+    def test_alternating_play_marks(self):
+        self.assertEqual(self.grid.play('center'), '*')
+        self.assertEqual(self.grid.play('top_left'), '+')
+        self.assertEqual(self.grid.play('bottom_middle'), '*')
+        self.assertEqual(self.grid.play('bottom_left'), '+')
+
 if __name__ == '__main__':
     unittest.main()
