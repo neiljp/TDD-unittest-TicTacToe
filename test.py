@@ -14,6 +14,8 @@ class Grid:
     def __init__(self, markers: str = "XO") -> None:
         if len(markers) != 2:
             raise InvalidMarkers()
+        if markers[0] == markers[1]:
+            raise InvalidMarkers()
         self.played_positions = dict()
         self.markers = markers
     def is_empty(self) -> bool:
@@ -57,6 +59,9 @@ class TicTacToeTest(unittest.TestCase):
     def test_too_many_markers(self):
         with self.assertRaises(InvalidMarkers):
             grid = Grid("OXY")
+    def test_duplicate_markers(self):
+        with self.assertRaises(InvalidMarkers):
+            grid = Grid("OO")
     def test_havegrid(self):
         assert(self.grid is not None)
     def test_startgrid_is_empty_and_not_full(self):
