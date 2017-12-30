@@ -216,12 +216,19 @@ class TicTacToeTest_star_plus(TicTacToeTest):  # Demonstration of arbitrary mark
         return Grid("*+")
 
 class TTTComputer:
-    pass
+    def play_on_grid(self, grid: Grid):
+        grid.play('center')
 
 class TTT_computer_test(unittest.TestCase):
     def test_TTTComputer_exists(self):
         computer = TTTComputer()
         self.assertIsNotNone(computer)
+    def test_computer_play_leaves_grid_not_empty(self):
+        grid = Grid("XO")
+        self.assertTrue(grid.is_empty())
+        computer = TTTComputer()
+        computer.play_on_grid(grid)
+        self.assertFalse(grid.is_empty())
 
 if __name__ == '__main__':
     unittest.main()
