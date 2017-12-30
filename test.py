@@ -25,7 +25,9 @@ class Grid:
     def get_grid(self) -> str:
         if self.is_empty():
             return " "*9
-        return (self.markers[0] + self.markers[1])*4 + self.markers[0]
+        return "".join(self.played_positions[posn]
+                       for posn in self.textual_positions
+                       if posn in self.played_positions)
     def play(self, position: str) -> Optional[str]:
         if position in self.played_positions:
             return None
@@ -207,6 +209,14 @@ class TicTacToeTest(unittest.TestCase):
             self.grid.play(move)
         self.assertEqual(self.grid.get_grid(),
                          (self.player_1 + self.player_2)*4 + self.player_1)
+    def test_get_grid_after_all_moves_offset_by_3(self):
+        moves = list(range(3,9))
+        moves.extend(list(range(0,3)))
+        for move in moves:
+            self.grid.play(Grid.textual_positions[move])
+        target = (self.player_1 + self.player_2 + self.player_1 +
+                  (self.player_1 + self.player_2)*3)
+        self.assertEqual(self.grid.get_grid(), target)
 
 class TicTacToeTest_XO(TicTacToeTest):
     player_1 = "X"
