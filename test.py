@@ -271,29 +271,27 @@ class TTTComputer:
 class TTT_computer_test(unittest.TestCase):
     def setUp(self):
         self.computer = TTTComputer()
+        self.grid = Grid("XO")
     def test_TTTComputer_exists(self):
         self.assertIsNotNone(self.computer)
     def test_computer_play_leaves_grid_not_empty(self):
-        grid = Grid("XO")
-        self.assertTrue(grid.is_empty())
-        self.computer.play_on_grid(grid, "X")
-        self.assertFalse(grid.is_empty())
+        self.assertTrue(self.grid.is_empty())
+        self.computer.play_on_grid(self.grid, "X")
+        self.assertFalse(self.grid.is_empty())
     def test_computer_tries_to_win_from_2_in_row_down_left_side(self):
-        grid = Grid("XO")
-        grid.play('top_left')  # X
-        grid.play('top_right')  # O
-        grid.play('bottom_left')  # X
-        grid.play('bottom_right')  # O
-        self.computer.play_on_grid(grid, "X")  # X
-        self.assertEqual(grid.get_winning_player(), 'X')
+        self.grid.play('top_left')  # X
+        self.grid.play('top_right')  # O
+        self.grid.play('bottom_left')  # X
+        self.grid.play('bottom_right')  # O
+        self.computer.play_on_grid(self.grid, "X")  # X
+        self.assertEqual(self.grid.get_winning_player(), 'X')
     def test_computer_tries_to_win_from_2_in_row_down_right_side(self):
-        grid = Grid("XO")
-        grid.play('top_right')  # X
-        grid.play('top_left')  # O
-        grid.play('bottom_right')  # X
-        grid.play('bottom_left')  # O
-        self.computer.play_on_grid(grid, "X")  # X
-        self.assertEqual(grid.get_winning_player(), 'X')
+        self.grid.play('top_right')  # X
+        self.grid.play('top_left')  # O
+        self.grid.play('bottom_right')  # X
+        self.grid.play('bottom_left')  # O
+        self.computer.play_on_grid(self.grid, "X")  # X
+        self.assertEqual(self.grid.get_winning_player(), 'X')
 
 if __name__ == '__main__':
     unittest.main()
