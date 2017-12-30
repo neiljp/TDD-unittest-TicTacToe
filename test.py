@@ -247,8 +247,26 @@ class TicTacToeTest_star_plus(TicTacToeTest):  # Demonstration of arbitrary mark
         return Grid("*+")
 
 class TTTComputer:
-    def play_on_grid(self, grid: Grid, with_mark: str):
-        grid.play('middle_left')
+    def __init__(self):
+        self.triples = [ {0, 4, 8}, {2, 4, 6} ]  # Diagonals
+        for i in range(0,3):
+            self.triples.append({0+(3*i), 1+(3*i), 2+(3*i)})  # Horizontals
+            self.triples.append({0+i, 3+i, 6+i})  # Verticals
+    def play_on_grid(self, grid: Grid, with_mark: str) -> None:
+        grid_s = grid.get_grid()
+        winning_move = self._try_to_win(grid_s, with_mark)
+        if winning_move is not None:
+            grid.play(Grid.textual_positions[winning_move])
+            return
+        grid.play('center')  # If can't win, play somewhere else
+    def _try_to_win(self, grid_str: str, with_mark: str) -> Optional[int]:
+        '''Tries to find a move to win; if so, returns index, otherwise None.'''
+        my_marks = {idx for idx, what in enumerate(grid_str) if what is with_mark}
+        for triple in self.triples:
+            intersection = triple & my_marks
+            if len(intersection) == 2:
+                return triple.difference(my_marks).pop()
+        return None
 
 class TTT_computer_test(unittest.TestCase):
     def setUp(self):
@@ -266,6 +284,14 @@ class TTT_computer_test(unittest.TestCase):
         grid.play('top_right')  # O
         grid.play('bottom_left')  # X
         grid.play('bottom_right')  # O
+        self.computer.play_on_grid(grid, "X")  # X
+        self.assertEqual(grid.get_winning_player(), 'X')
+    def test_computer_tries_to_win_from_2_in_row_down_right_side(self):
+        grid = Grid("XO")
+        grid.play('top_right')  # X
+        grid.play('top_left')  # O
+        grid.play('bottom_right')  # X
+        grid.play('bottom_left')  # O
         self.computer.play_on_grid(grid, "X")  # X
         self.assertEqual(grid.get_winning_player(), 'X')
 
