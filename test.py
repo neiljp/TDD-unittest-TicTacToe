@@ -258,7 +258,11 @@ class TTTComputer:
         if winning_move is not None:
             grid.play(Grid.textual_positions[winning_move])
             return
-        grid.play('center')  # If can't win, play somewhere else
+        for sequential_move in range(0, 9):  # If can't win, try playing next free position
+            if grid_s[sequential_move] == " ":
+                grid.play(Grid.textual_positions[sequential_move])
+                return
+        return
     def _try_to_win(self, grid_str: str, with_mark: str) -> Optional[int]:
         '''Tries to find a move to win; if so, returns index, otherwise None.'''
         my_marks = {idx for idx, what in enumerate(grid_str) if what is with_mark}
@@ -294,6 +298,14 @@ class TTT_computer_test(unittest.TestCase):
         self.computer.play_on_grid(self.grid, "X")  # X
         self.assertEqual(self.grid.get_grid(), "O X  XO X")
         self.assertEqual(self.grid.get_winning_player(), 'X')
+    def test_computer_plays_in_blank_if_cant_win(self):
+        for move_2 in range(1, 9):
+            grid = Grid("XO")  # Use new grid each time
+            grid.play('top_left')
+            grid.play(Grid.textual_positions[move_2])
+            self.computer.play_on_grid(grid, "X")
+            number_of_plays = len([entry for entry in grid.get_grid() if entry is not " "])
+            self.assertEqual(number_of_plays, 3, Grid.textual_positions[move_2])
 
 if __name__ == '__main__':
     unittest.main()
