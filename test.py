@@ -26,8 +26,8 @@ class Grid:
         if self.is_empty():
             return " "*9
         return "".join(self.played_positions[posn]
-                       for posn in self.textual_positions
-                       if posn in self.played_positions)
+                           if posn in self.played_positions else " "
+                       for posn in self.textual_positions)
     def play(self, position: str) -> Optional[str]:
         if position in self.played_positions:
             return None
@@ -217,6 +217,9 @@ class TicTacToeTest(unittest.TestCase):
         target = (self.player_1 + self.player_2 + self.player_1 +
                   (self.player_1 + self.player_2)*3)
         self.assertEqual(self.grid.get_grid(), target)
+    def test_get_grid_after_center_play(self):
+        self.grid.play('center')
+        self.assertEqual(self.grid.get_grid(), " "*4 + self.player_1 + " "*4)
 
 class TicTacToeTest_XO(TicTacToeTest):
     player_1 = "X"
