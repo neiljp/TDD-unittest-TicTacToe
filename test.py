@@ -28,6 +28,8 @@ class Grid:
         return "".join(self.played_positions[posn]
                            if posn in self.played_positions else " "
                        for posn in self.textual_positions)
+    def __str__(self) -> str:
+        return self.get_grid()
     def play(self, position: str) -> Optional[str]:
         if position in self.played_positions:
             return None
@@ -220,6 +222,11 @@ class TicTacToeTest(unittest.TestCase):
     def test_get_grid_after_center_play(self):
         self.grid.play('center')
         self.assertEqual(self.grid.get_grid(), " "*4 + self.player_1 + " "*4)
+    def test_get_grid_same_as_str(self):
+        self.grid.play('center')
+        self.grid.play('top_left')
+        self.grid.play('bottom_right')
+        self.assertEqual(self.grid.get_grid(), "%s" % self.grid)
 
 class TicTacToeTest_XO(TicTacToeTest):
     player_1 = "X"
