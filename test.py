@@ -269,7 +269,9 @@ class TTTComputer:
         for triple in self.triples:
             intersection = triple & my_marks
             if len(intersection) == 2:
-                return triple.difference(my_marks).pop()
+                potential_move = triple.difference(my_marks).pop()
+                if grid_str[potential_move] == " ":
+                    return potential_move
         return None
 
 class TTT_computer_test(unittest.TestCase):
@@ -298,6 +300,14 @@ class TTT_computer_test(unittest.TestCase):
         self.computer.play_on_grid(self.grid, "X")  # X
         self.assertEqual(self.grid.get_grid(), "O X  XO X")
         self.assertEqual(self.grid.get_winning_player(), 'X')
+    def test_computer_doesnt_try_to_win_where_opponent_has_marker(self):
+        self.grid.play('top_right')  # X
+        self.grid.play('top_left')  # O
+        self.grid.play('bottom_right')  # X
+        self.grid.play('middle_right')  # O [blocks X win]
+        self.computer.play_on_grid(self.grid, "X")  # X
+        number_of_plays = len([entry for entry in self.grid.get_grid() if entry is not " "])
+        self.assertEqual(number_of_plays, 5)
     def test_computer_plays_in_blank_if_cant_win(self):
         for move_2 in range(1, 9):
             grid = Grid("XO")  # Use new grid each time
