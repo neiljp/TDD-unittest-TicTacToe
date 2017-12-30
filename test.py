@@ -220,14 +220,14 @@ class TTTComputer:
         grid.play('center')
 
 class TTT_computer_test(unittest.TestCase):
+    def setUp(self):
+        self.computer = TTTComputer()
     def test_TTTComputer_exists(self):
-        computer = TTTComputer()
-        self.assertIsNotNone(computer)
+        self.assertIsNotNone(self.computer)
     def test_computer_play_leaves_grid_not_empty(self):
         grid = Grid("XO")
         self.assertTrue(grid.is_empty())
-        computer = TTTComputer()
-        computer.play_on_grid(grid)
+        self.computer.play_on_grid(grid)
         self.assertFalse(grid.is_empty())
 
 if __name__ == '__main__':
