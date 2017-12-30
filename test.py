@@ -284,6 +284,7 @@ class TTT_computer_test(unittest.TestCase):
         self.grid.play('bottom_left')  # X
         self.grid.play('bottom_right')  # O
         self.computer.play_on_grid(self.grid, "X")  # X
+        self.assertEqual(self.grid.get_grid(), "X OX  X O")
         self.assertEqual(self.grid.get_winning_player(), 'X')
     def test_computer_tries_to_win_from_2_in_row_down_right_side(self):
         self.grid.play('top_right')  # X
@@ -291,6 +292,7 @@ class TTT_computer_test(unittest.TestCase):
         self.grid.play('bottom_right')  # X
         self.grid.play('bottom_left')  # O
         self.computer.play_on_grid(self.grid, "X")  # X
+        self.assertEqual(self.grid.get_grid(), "O X  XO X")
         self.assertEqual(self.grid.get_winning_player(), 'X')
 
 if __name__ == '__main__':
