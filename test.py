@@ -216,8 +216,8 @@ class TicTacToeTest_star_plus(TicTacToeTest):  # Demonstration of arbitrary mark
         return Grid("*+")
 
 class TTTComputer:
-    def play_on_grid(self, grid: Grid):
-        grid.play('center')
+    def play_on_grid(self, grid: Grid, with_mark: str):
+        grid.play('middle_left')
 
 class TTT_computer_test(unittest.TestCase):
     def setUp(self):
@@ -227,8 +227,16 @@ class TTT_computer_test(unittest.TestCase):
     def test_computer_play_leaves_grid_not_empty(self):
         grid = Grid("XO")
         self.assertTrue(grid.is_empty())
-        self.computer.play_on_grid(grid)
+        self.computer.play_on_grid(grid, "X")
         self.assertFalse(grid.is_empty())
+    def test_computer_tries_to_win_from_2_in_row_down_left_side(self):
+        grid = Grid("XO")
+        grid.play('top_left')  # X
+        grid.play('top_right')  # O
+        grid.play('bottom_left')  # X
+        grid.play('bottom_right')  # O
+        self.computer.play_on_grid(grid, "X")  # X
+        self.assertEqual(grid.get_winning_player(), 'X')
 
 if __name__ == '__main__':
     unittest.main()
