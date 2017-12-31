@@ -265,10 +265,15 @@ class TTTComputer:
         if avoid_loss_move is not None:
             grid.play(Grid.textual_positions[avoid_loss_move])
             return
-        # Try to detect a fork and play there
+        # Try to detect a fork for computer and play there
         fork_move_for_me = self._detect_fork_move_for_mark(grid_s, with_mark, vs_mark)
         if fork_move_for_me is not None:
             grid.play(Grid.textual_positions[fork_move_for_me])
+            return
+        # Try to detect a fork for opponent and play (block) there
+        fork_move_for_opponent = self._detect_fork_move_for_mark(grid_s, vs_mark, with_mark)
+        if fork_move_for_opponent is not None:
+            grid.play(Grid.textual_positions[fork_move_for_opponent])
             return
         # If center is not taken, take it, except on first move
         if number_of_plays > 0 and grid_s[4] == " ":
@@ -407,6 +412,14 @@ class TTT_computer_test(unittest.TestCase):
         grid_str = self.grid.get_grid()
         self.assertNumberOfPlaysOnGrid(grid_str, 5)
         self.assertIn(grid_str, ("XO XX   O", "XO  X X O"))
+    def test_computer_detects_and_blocks_fork(self):
+        self.grid.play('center')
+        self.computer.play_on_grid(self.grid, "O", "X")
+        self.grid.play('bottom_right')
+        self.computer.play_on_grid(self.grid, "O", "X")
+        grid_str = self.grid.get_grid()
+        self.assertNumberOfPlaysOnGrid(grid_str, 4)
+        self.assertEqual(grid_str, "O O X   X")
 
 if __name__ == '__main__':
     unittest.main()
