@@ -252,13 +252,20 @@ class TTTComputer:
         for i in range(0,3):
             self.triples.append({0+(3*i), 1+(3*i), 2+(3*i)})  # Horizontals
             self.triples.append({0+i, 3+i, 6+i})  # Verticals
-    def play_on_grid(self, grid: Grid, with_mark: str) -> None:
+    def play_on_grid(self, grid: Grid, with_mark: str, vs_mark: str) -> None:
         grid_s = grid.get_grid()
+        # Try to win
         winning_move = self._try_to_win(grid_s, with_mark)
         if winning_move is not None:
             grid.play(Grid.textual_positions[winning_move])
             return
-        for sequential_move in range(0, 9):  # If can't win, try playing next free position
+        # Block any potential losing move
+        avoid_loss_move = self._try_to_avoid_loss(grid_s, vs_mark)
+        if avoid_loss_move is not None:
+            grid.play(Grid.textual_positions[avoid_loss_move])
+            return
+        # Play in next available space
+        for sequential_move in range(0, 9):
             if grid_s[sequential_move] == " ":
                 grid.play(Grid.textual_positions[sequential_move])
                 return
@@ -273,6 +280,17 @@ class TTTComputer:
                 if grid_str[potential_move] == " ":
                     return potential_move
         return None
+    def _try_to_avoid_loss(self, grid_str: str, against_mark: str) -> Optional[int]:
+        '''Tries to find if a position must be played to block an opponent's win.
+           If so, returns that index, otherwise None.'''
+        opponent_marks = {idx for idx, what in enumerate(grid_str) if what is against_mark}
+        for triple in self.triples:
+            intersection = triple & opponent_marks
+            if len(intersection) == 2:
+                potential_block = triple.difference(opponent_marks).pop()
+                if grid_str[potential_block] == " ":
+                    return potential_block
+        return None
 
 class TTT_computer_test(unittest.TestCase):
     def setUp(self):
@@ -286,14 +304,14 @@ class TTT_computer_test(unittest.TestCase):
         self.assertIsNotNone(self.computer)
     def test_computer_play_leaves_grid_not_empty(self):
         self.assertTrue(self.grid.is_empty())
-        self.computer.play_on_grid(self.grid, "X")
+        self.computer.play_on_grid(self.grid, "X", "O")
         self.assertFalse(self.grid.is_empty())
     def test_computer_tries_to_win_from_2_in_row_down_left_side(self):
         self.grid.play('top_left')  # X
         self.grid.play('top_right')  # O
         self.grid.play('bottom_left')  # X
         self.grid.play('bottom_right')  # O
-        self.computer.play_on_grid(self.grid, "X")  # X
+        self.computer.play_on_grid(self.grid, "X", "O")  # X
         self.assertEqual(self.grid.get_grid(), "X OX  X O")
         self.assertEqual(self.grid.get_winning_player(), 'X')
     def test_computer_tries_to_win_from_2_in_row_down_right_side(self):
@@ -301,7 +319,7 @@ class TTT_computer_test(unittest.TestCase):
         self.grid.play('top_left')  # O
         self.grid.play('bottom_right')  # X
         self.grid.play('bottom_left')  # O
-        self.computer.play_on_grid(self.grid, "X")  # X
+        self.computer.play_on_grid(self.grid, "X", "O")  # X
         self.assertEqual(self.grid.get_grid(), "O X  XO X")
         self.assertEqual(self.grid.get_winning_player(), 'X')
     def test_computer_doesnt_try_to_win_where_opponent_has_marker(self):
@@ -309,15 +327,24 @@ class TTT_computer_test(unittest.TestCase):
         self.grid.play('top_left')  # O
         self.grid.play('bottom_right')  # X
         self.grid.play('middle_right')  # O [blocks X win]
-        self.computer.play_on_grid(self.grid, "X")  # X
+        self.computer.play_on_grid(self.grid, "X", "O")  # X
         self.assertNumberOfPlaysOnGrid(self.grid.get_grid(), 5)
     def test_computer_plays_in_blank_if_cant_win(self):
         for move_2 in range(1, 9):
             grid = Grid("XO")  # Use new grid each time
             grid.play('top_left')
             grid.play(Grid.textual_positions[move_2])
-            self.computer.play_on_grid(grid, "X")
+            self.computer.play_on_grid(grid, "X", "O")
             self.assertNumberOfPlaysOnGrid(grid.get_grid(), 3, Grid.textual_positions[move_2])
+    def test_computer_can_block(self):
+        self.grid.play('top_right')  # X
+        self.grid.play('top_left')  # O
+        self.grid.play('bottom_middle')  # X
+        self.grid.play('middle_left')  # O
+        self.computer.play_on_grid(self.grid, "X", "O")  # X
+        grid_s = self.grid.get_grid()
+        self.assertNumberOfPlaysOnGrid(grid_s, 5)
+        self.assertEqual(grid_s, "O XO  XX ")
 
 if __name__ == '__main__':
     unittest.main()
