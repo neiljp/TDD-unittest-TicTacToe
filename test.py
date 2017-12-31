@@ -254,6 +254,7 @@ class TTTComputer:
             self.triples.append({0+i, 3+i, 6+i})  # Verticals
     def play_on_grid(self, grid: Grid, with_mark: str, vs_mark: str) -> None:
         grid_s = grid.get_grid()
+        number_of_plays = len([entry for entry in grid_s if entry is not " "])
         # Try to win
         winning_move = self._try_to_win(grid_s, with_mark)
         if winning_move is not None:
@@ -263,6 +264,10 @@ class TTTComputer:
         avoid_loss_move = self._try_to_avoid_loss(grid_s, vs_mark)
         if avoid_loss_move is not None:
             grid.play(Grid.textual_positions[avoid_loss_move])
+            return
+        # If center is not taken, take it, except on first move
+        if number_of_plays > 0 and grid_s[4] == " ":
+            grid.play('center')
             return
         # Play in next available space
         for sequential_move in range(0, 9):
@@ -345,6 +350,18 @@ class TTT_computer_test(unittest.TestCase):
         grid_s = self.grid.get_grid()
         self.assertNumberOfPlaysOnGrid(grid_s, 5)
         self.assertEqual(grid_s, "O XO  XX ")
+    def test_computer_plays_in_center_if_unoccupied_and_not_first_move(self):
+        for move_1 in range(0, 9):
+            grid = Grid("XO")  # Use new grid each time
+            grid.play(Grid.textual_positions[move_1])
+            self.computer.play_on_grid(grid, "O", "X")
+            self.assertNumberOfPlaysOnGrid(grid.get_grid(), 2, Grid.textual_positions[move_1])
+            expected_grid = ["X" if i==move_1 else " " for i in range(0, 9)]
+            if move_1 != 4:
+                expected_grid[4] = "O"
+            else:
+                expected_grid[0] = "O"
+            self.assertEqual(grid.get_grid(), "".join(expected_grid))
 
 if __name__ == '__main__':
     unittest.main()
