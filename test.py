@@ -362,6 +362,12 @@ class TTT_computer_test(unittest.TestCase):
             else:
                 expected_grid[0] = "O"
             self.assertEqual(grid.get_grid(), "".join(expected_grid))
+    def test_computer_starts_in_the_corner(self):  # best probabilistic strategy
+        self.computer.play_on_grid(self.grid, "X", "O")
+        grid_s = self.grid.get_grid()
+        self.assertNumberOfPlaysOnGrid(grid_s, 1)
+        X_index = grid_s.find("X")
+        self.assertTrue(X_index in (0, 2, 6, 8))
 
 if __name__ == '__main__':
     unittest.main()
