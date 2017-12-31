@@ -287,16 +287,18 @@ class TTTComputer:
                 assert(len(empty_winning_moves)==1)  # FIXME? Previous code assumed this
                 return empty_winning_moves[0]
         return None
-    def _try_to_avoid_loss(self, grid_str: str, against_mark: str) -> Optional[int]:
+    def _try_to_avoid_loss(self, grid_str: str, vs_mark: str) -> Optional[int]:
         '''Tries to find if a position must be played to block an opponent's win.
            If so, returns that index, otherwise None.'''
-        opponent_marks = {idx for idx, what in enumerate(grid_str) if what is against_mark}
-        for triple in self.triples:
-            intersection = triple & opponent_marks
-            if len(intersection) == 2:
-                potential_block = triple.difference(opponent_marks).pop()
-                if grid_str[potential_block] == " ":
-                    return potential_block
+        vs_marks = {idx for idx, what in enumerate(grid_str) if what is vs_mark}
+        # We know we have one entry, so using pop is safe (triple less length=2 item)
+        avoid_loss_moves = [(triple - (triple & vs_marks)).pop() for triple in self.triples
+                            if len(triple & vs_marks) == 2]
+        if avoid_loss_moves:
+            empty_avoid_loss_moves = [move for move in avoid_loss_moves if grid_str[move] == " "]
+            if empty_avoid_loss_moves:
+                assert(len(empty_avoid_loss_moves)==1)  # FIXME? Computer has lost - forked!
+                return empty_avoid_loss_moves[0]
         return None
 
 class TTT_computer_test(unittest.TestCase):
