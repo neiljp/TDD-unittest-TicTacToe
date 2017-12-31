@@ -308,6 +308,13 @@ class TTT_computer_test(unittest.TestCase):
     def assertNumberOfPlaysOnGrid(self, grid_str: str, number_of_plays: int, msg=""):
         expected_number_of_plays = len([entry for entry in grid_str if entry is not " "])
         self.assertEqual(expected_number_of_plays, number_of_plays, msg=msg)
+    def print_grid_2d(self, grid_str: str):
+        grid_str_ = "".join(["_" if chr == " " else chr for chr in grid_str])
+        print()
+        print(grid_str_[0:3])
+        print(grid_str_[3:6])
+        print(grid_str_[6:9])
+        print()
 
     def test_TTTComputer_exists(self):
         self.assertIsNotNone(self.computer)
