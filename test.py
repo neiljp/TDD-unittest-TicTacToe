@@ -262,8 +262,8 @@ class TTTComputer:
             return
         # Block any potential losing move
         avoid_loss_move = self._try_to_avoid_loss(grid_s, vs_mark)
-        if avoid_loss_move is not None:
-            grid.play(Grid.textual_positions[avoid_loss_move])
+        if avoid_loss_move:  # Non-empty list
+            grid.play(Grid.textual_positions[avoid_loss_move[0]])  # Might be forked, play anyhow
             return
         # Try to detect a fork for computer and play there
         fork_move_for_me = self._detect_fork_move_for_mark(grid_s, with_mark, vs_mark)
@@ -297,7 +297,7 @@ class TTTComputer:
                 assert(len(empty_winning_moves)==1)  # FIXME? Previous code assumed this
                 return empty_winning_moves[0]
         return None
-    def _try_to_avoid_loss(self, grid_str: str, vs_mark: str) -> Optional[int]:
+    def _try_to_avoid_loss(self, grid_str: str, vs_mark: str) -> List[int]:
         '''Tries to find if a position must be played to block an opponent's win.
            If so, returns that index, otherwise None.'''
         vs_marks = {idx for idx, what in enumerate(grid_str) if what is vs_mark}
@@ -307,9 +307,8 @@ class TTTComputer:
         if avoid_loss_moves:
             empty_avoid_loss_moves = [move for move in avoid_loss_moves if grid_str[move] == " "]
             if empty_avoid_loss_moves:
-                assert(len(empty_avoid_loss_moves)==1)  # FIXME? Computer has lost - forked!
-                return empty_avoid_loss_moves[0]
-        return None
+                return empty_avoid_loss_moves
+        return []
     def _detect_fork_move_for_mark(self, grid_str: str, mark: str, other_mark: str) -> List[int]:
         '''Tries to find if a position exists where 'mark' can fork.
            If so, returns that index, otherwise None.'''
