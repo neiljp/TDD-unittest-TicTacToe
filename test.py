@@ -278,12 +278,14 @@ class TTTComputer:
     def _try_to_win(self, grid_str: str, with_mark: str) -> Optional[int]:
         '''Tries to find a move to win; if so, returns index, otherwise None.'''
         my_marks = {idx for idx, what in enumerate(grid_str) if what is with_mark}
-        for triple in self.triples:
-            intersection = triple & my_marks
-            if len(intersection) == 2:
-                potential_move = triple.difference(my_marks).pop()
-                if grid_str[potential_move] == " ":
-                    return potential_move
+        # We know we have one entry, so using pop is safe (triple less length=2 item)
+        winning_moves = [(triple - (triple & my_marks)).pop() for triple in self.triples
+                         if len(triple & my_marks) == 2]
+        if winning_moves:
+            empty_winning_moves = [move for move in winning_moves if grid_str[move] == " "]
+            if empty_winning_moves:
+                assert(len(empty_winning_moves)==1)  # FIXME? Previous code assumed this
+                return empty_winning_moves[0]
         return None
     def _try_to_avoid_loss(self, grid_str: str, against_mark: str) -> Optional[int]:
         '''Tries to find if a position must be played to block an opponent's win.
