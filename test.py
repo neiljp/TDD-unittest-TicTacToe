@@ -278,6 +278,10 @@ class TTT_computer_test(unittest.TestCase):
     def setUp(self):
         self.computer = TTTComputer()
         self.grid = Grid("XO")
+    def assertNumberOfPlaysOnGrid(self, grid_str: str, number_of_plays: int, msg=""):
+        expected_number_of_plays = len([entry for entry in grid_str if entry is not " "])
+        self.assertEqual(expected_number_of_plays, number_of_plays, msg=msg)
+
     def test_TTTComputer_exists(self):
         self.assertIsNotNone(self.computer)
     def test_computer_play_leaves_grid_not_empty(self):
@@ -306,16 +310,14 @@ class TTT_computer_test(unittest.TestCase):
         self.grid.play('bottom_right')  # X
         self.grid.play('middle_right')  # O [blocks X win]
         self.computer.play_on_grid(self.grid, "X")  # X
-        number_of_plays = len([entry for entry in self.grid.get_grid() if entry is not " "])
-        self.assertEqual(number_of_plays, 5)
+        self.assertNumberOfPlaysOnGrid(self.grid.get_grid(), 5)
     def test_computer_plays_in_blank_if_cant_win(self):
         for move_2 in range(1, 9):
             grid = Grid("XO")  # Use new grid each time
             grid.play('top_left')
             grid.play(Grid.textual_positions[move_2])
             self.computer.play_on_grid(grid, "X")
-            number_of_plays = len([entry for entry in grid.get_grid() if entry is not " "])
-            self.assertEqual(number_of_plays, 3, Grid.textual_positions[move_2])
+            self.assertNumberOfPlaysOnGrid(grid.get_grid(), 3, Grid.textual_positions[move_2])
 
 if __name__ == '__main__':
     unittest.main()
