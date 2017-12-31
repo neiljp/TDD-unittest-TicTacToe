@@ -265,6 +265,11 @@ class TTTComputer:
         if avoid_loss_move is not None:
             grid.play(Grid.textual_positions[avoid_loss_move])
             return
+        # Try to detect a fork and play there
+        fork_move_for_me = self._detect_fork_move_for_mark(grid_s, with_mark, vs_mark)
+        if fork_move_for_me is not None:
+            grid.play(Grid.textual_positions[fork_move_for_me])
+            return
         # If center is not taken, take it, except on first move
         if number_of_plays > 0 and grid_s[4] == " ":
             grid.play('center')
@@ -299,6 +304,20 @@ class TTTComputer:
             if empty_avoid_loss_moves:
                 assert(len(empty_avoid_loss_moves)==1)  # FIXME? Computer has lost - forked!
                 return empty_avoid_loss_moves[0]
+        return None
+    def _detect_fork_move_for_mark(self, grid_str: str, mark: str, other_mark: str) -> Optional[int]:
+        '''Tries to find if a position exists where 'mark' can fork.
+           If so, returns that index, otherwise None.'''
+        marks = {idx for idx, what in enumerate(grid_str) if what is mark}
+        other_marks = {idx for idx, what in enumerate(grid_str) if what is other_mark}
+        intersecting_triples = [(triple, triple & marks, triple - marks) for triple in self.triples
+                                if (triple & marks) != set() and triple & other_marks == set()]
+        forks = {(a & available).pop()  # Can pop since not an empty set
+                 for triple, overlap, available in intersecting_triples
+                 for t, o, a in intersecting_triples
+                 if triple != t and (a & available) != set()}
+        if forks:
+            return forks.pop()  # FIXME: Currently only grabbing first fork available
         return None
 
 class TTT_computer_test(unittest.TestCase):
@@ -379,6 +398,15 @@ class TTT_computer_test(unittest.TestCase):
         self.assertNumberOfPlaysOnGrid(grid_s, 1)
         X_index = grid_s.find("X")
         self.assertTrue(X_index in (0, 2, 6, 8))
+    def test_computer_detects_and_plays_a_fork(self):
+        self.grid.play('top_left')
+        self.grid.play('top_middle')
+        self.grid.play('center')
+        self.grid.play('bottom_right')
+        self.computer.play_on_grid(self.grid, "X", "O")
+        grid_str = self.grid.get_grid()
+        self.assertNumberOfPlaysOnGrid(grid_str, 5)
+        self.assertIn(grid_str, ("XO XX   O", "XO  X X O"))
 
 if __name__ == '__main__':
     unittest.main()
