@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from typing import Optional
+from typing import Optional, List
 
 import unittest
 
@@ -267,13 +267,13 @@ class TTTComputer:
             return
         # Try to detect a fork for computer and play there
         fork_move_for_me = self._detect_fork_move_for_mark(grid_s, with_mark, vs_mark)
-        if fork_move_for_me is not None:
-            grid.play(Grid.textual_positions[fork_move_for_me])
+        if fork_move_for_me:  # Non-empty list
+            grid.play(Grid.textual_positions[fork_move_for_me[0]])
             return
         # Try to detect a fork for opponent and play (block) there
         fork_move_for_opponent = self._detect_fork_move_for_mark(grid_s, vs_mark, with_mark)
-        if fork_move_for_opponent is not None:
-            grid.play(Grid.textual_positions[fork_move_for_opponent])
+        if fork_move_for_opponent:  # Non-empty list
+            grid.play(Grid.textual_positions[fork_move_for_opponent[0]])
             return
         # If center is not taken, take it, except on first move
         if number_of_plays > 0 and grid_s[4] == " ":
@@ -310,7 +310,7 @@ class TTTComputer:
                 assert(len(empty_avoid_loss_moves)==1)  # FIXME? Computer has lost - forked!
                 return empty_avoid_loss_moves[0]
         return None
-    def _detect_fork_move_for_mark(self, grid_str: str, mark: str, other_mark: str) -> Optional[int]:
+    def _detect_fork_move_for_mark(self, grid_str: str, mark: str, other_mark: str) -> List[int]:
         '''Tries to find if a position exists where 'mark' can fork.
            If so, returns that index, otherwise None.'''
         marks = {idx for idx, what in enumerate(grid_str) if what is mark}
@@ -322,8 +322,8 @@ class TTTComputer:
                  for t, o, a in intersecting_triples
                  if triple != t and (a & available) != set()}
         if forks:
-            return forks.pop()  # FIXME: Currently only grabbing first fork available
-        return None
+            return list(forks)
+        return []
 
 class TTT_computer_test(unittest.TestCase):
     def setUp(self):
