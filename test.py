@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from typing import Optional
+from typing import Optional, List
 
 import unittest
 
@@ -22,6 +22,14 @@ class Grid:
         return len(self.played_positions) == 0
     def is_full(self) -> bool:
         return len(self.played_positions) == 9
+    def get_grid(self) -> str:
+        if self.is_empty():
+            return " "*9
+        return "".join(self.played_positions[posn]
+                           if posn in self.played_positions else " "
+                       for posn in self.textual_positions)
+    def __str__(self) -> str:
+        return self.get_grid()
     def play(self, position: str) -> Optional[str]:
         if position in self.played_positions:
             return None
@@ -196,6 +204,29 @@ class TicTacToeTest(unittest.TestCase):
         player_2_moves = [[0,4,8], [2,4,6]]
         for grid, first, second in self._get_grids_for_multiple_encoded_plays(player_1_moves, player_2_moves):
             self.assertEqual(grid.get_winning_player(), self.player_2, (first, second))
+    def test_get_grid_at_start(self):
+        self.assertEqual(self.grid.get_grid(), " "*9)
+    def test_get_grid_after_all_textual_moves(self):
+        for move in Grid.textual_positions:
+            self.grid.play(move)
+        self.assertEqual(self.grid.get_grid(),
+                         (self.player_1 + self.player_2)*4 + self.player_1)
+    def test_get_grid_after_all_moves_offset_by_3(self):
+        moves = list(range(3,9))
+        moves.extend(list(range(0,3)))
+        for move in moves:
+            self.grid.play(Grid.textual_positions[move])
+        target = (self.player_1 + self.player_2 + self.player_1 +
+                  (self.player_1 + self.player_2)*3)
+        self.assertEqual(self.grid.get_grid(), target)
+    def test_get_grid_after_center_play(self):
+        self.grid.play('center')
+        self.assertEqual(self.grid.get_grid(), " "*4 + self.player_1 + " "*4)
+    def test_get_grid_same_as_str(self):
+        self.grid.play('center')
+        self.grid.play('top_left')
+        self.grid.play('bottom_right')
+        self.assertEqual(self.grid.get_grid(), "%s" % self.grid)
 
 class TicTacToeTest_XO(TicTacToeTest):
     player_1 = "X"
@@ -214,6 +245,180 @@ class TicTacToeTest_star_plus(TicTacToeTest):  # Demonstration of arbitrary mark
     player_2 = "+"
     def make_grid(self):
         return Grid("*+")
+
+class TTTComputer:
+    def __init__(self):
+        self.triples = [ {0, 4, 8}, {2, 4, 6} ]  # Diagonals
+        for i in range(0,3):
+            self.triples.append({0+(3*i), 1+(3*i), 2+(3*i)})  # Horizontals
+            self.triples.append({0+i, 3+i, 6+i})  # Verticals
+    def play_on_grid(self, grid: Grid, with_mark: str, vs_mark: str) -> None:
+        grid_s = grid.get_grid()
+        number_of_plays = len([entry for entry in grid_s if entry is not " "])
+        # Try to win
+        winning_move = self._try_to_win(grid_s, with_mark)
+        if winning_move is not None:
+            grid.play(Grid.textual_positions[winning_move])
+            return
+        # Block any potential losing move
+        avoid_loss_move = self._try_to_avoid_loss(grid_s, vs_mark)
+        if avoid_loss_move:  # Non-empty list
+            grid.play(Grid.textual_positions[avoid_loss_move[0]])  # Might be forked, play anyhow
+            return
+        # Try to detect a fork for computer and play there
+        fork_move_for_me = self._detect_fork_move_for_mark(grid_s, with_mark, vs_mark)
+        if fork_move_for_me:  # Non-empty list
+            grid.play(Grid.textual_positions[fork_move_for_me[0]])
+            return
+        # Try to detect a fork for opponent and play (block) there
+        fork_move_for_opponent = self._detect_fork_move_for_mark(grid_s, vs_mark, with_mark)
+        if fork_move_for_opponent:  # Non-empty list
+            grid.play(Grid.textual_positions[fork_move_for_opponent[0]])
+            return
+        # If center is not taken, take it, except on first move
+        if number_of_plays > 0 and grid_s[4] == " ":
+            grid.play('center')
+            return
+        # Play in next available space
+        for sequential_move in range(0, 9):
+            if grid_s[sequential_move] == " ":
+                grid.play(Grid.textual_positions[sequential_move])
+                return
+        return
+    def _try_to_win(self, grid_str: str, with_mark: str) -> Optional[int]:
+        '''Tries to find a move to win; if so, returns index, otherwise None.'''
+        my_marks = {idx for idx, what in enumerate(grid_str) if what is with_mark}
+        # We know we have one entry, so using pop is safe (triple less length=2 item)
+        winning_moves = [(triple - (triple & my_marks)).pop() for triple in self.triples
+                         if len(triple & my_marks) == 2]
+        if winning_moves:
+            empty_winning_moves = [move for move in winning_moves if grid_str[move] == " "]
+            if empty_winning_moves:
+                assert(len(empty_winning_moves)==1)  # FIXME? Previous code assumed this
+                return empty_winning_moves[0]
+        return None
+    def _try_to_avoid_loss(self, grid_str: str, vs_mark: str) -> List[int]:
+        '''Tries to find if a position must be played to block an opponent's win.
+           If so, returns that index, otherwise None.'''
+        vs_marks = {idx for idx, what in enumerate(grid_str) if what is vs_mark}
+        # We know we have one entry, so using pop is safe (triple less length=2 item)
+        avoid_loss_moves = [(triple - (triple & vs_marks)).pop() for triple in self.triples
+                            if len(triple & vs_marks) == 2]
+        if avoid_loss_moves:
+            empty_avoid_loss_moves = [move for move in avoid_loss_moves if grid_str[move] == " "]
+            if empty_avoid_loss_moves:
+                return empty_avoid_loss_moves
+        return []
+    def _detect_fork_move_for_mark(self, grid_str: str, mark: str, other_mark: str) -> List[int]:
+        '''Tries to find if a position exists where 'mark' can fork.
+           If so, returns that index, otherwise None.'''
+        marks = {idx for idx, what in enumerate(grid_str) if what is mark}
+        other_marks = {idx for idx, what in enumerate(grid_str) if what is other_mark}
+        intersecting_triples = [(triple, triple & marks, triple - marks) for triple in self.triples
+                                if (triple & marks) != set() and triple & other_marks == set()]
+        forks = {(a & available).pop()  # Can pop since not an empty set
+                 for triple, overlap, available in intersecting_triples
+                 for t, o, a in intersecting_triples
+                 if triple != t and (a & available) != set()}
+        if forks:
+            return list(forks)
+        return []
+
+class TTT_computer_test(unittest.TestCase):
+    def setUp(self):
+        self.computer = TTTComputer()
+        self.grid = Grid("XO")
+    def assertNumberOfPlaysOnGrid(self, grid_str: str, number_of_plays: int, msg=""):
+        expected_number_of_plays = len([entry for entry in grid_str if entry is not " "])
+        self.assertEqual(expected_number_of_plays, number_of_plays, msg=msg)
+    def print_grid_2d(self, grid_str: str):
+        grid_str_ = "".join(["_" if chr == " " else chr for chr in grid_str])
+        print()
+        print(grid_str_[0:3])
+        print(grid_str_[3:6])
+        print(grid_str_[6:9])
+        print()
+
+    def test_TTTComputer_exists(self):
+        self.assertIsNotNone(self.computer)
+    def test_computer_play_leaves_grid_not_empty(self):
+        self.assertTrue(self.grid.is_empty())
+        self.computer.play_on_grid(self.grid, "X", "O")
+        self.assertFalse(self.grid.is_empty())
+    def test_computer_tries_to_win_from_2_in_row_down_left_side(self):
+        self.grid.play('top_left')  # X
+        self.grid.play('top_right')  # O
+        self.grid.play('bottom_left')  # X
+        self.grid.play('bottom_right')  # O
+        self.computer.play_on_grid(self.grid, "X", "O")  # X
+        self.assertEqual(self.grid.get_grid(), "X OX  X O")
+        self.assertEqual(self.grid.get_winning_player(), 'X')
+    def test_computer_tries_to_win_from_2_in_row_down_right_side(self):
+        self.grid.play('top_right')  # X
+        self.grid.play('top_left')  # O
+        self.grid.play('bottom_right')  # X
+        self.grid.play('bottom_left')  # O
+        self.computer.play_on_grid(self.grid, "X", "O")  # X
+        self.assertEqual(self.grid.get_grid(), "O X  XO X")
+        self.assertEqual(self.grid.get_winning_player(), 'X')
+    def test_computer_doesnt_try_to_win_where_opponent_has_marker(self):
+        self.grid.play('top_right')  # X
+        self.grid.play('top_left')  # O
+        self.grid.play('bottom_right')  # X
+        self.grid.play('middle_right')  # O [blocks X win]
+        self.computer.play_on_grid(self.grid, "X", "O")  # X
+        self.assertNumberOfPlaysOnGrid(self.grid.get_grid(), 5)
+    def test_computer_plays_in_blank_if_cant_win(self):
+        for move_2 in range(1, 9):
+            grid = Grid("XO")  # Use new grid each time
+            grid.play('top_left')
+            grid.play(Grid.textual_positions[move_2])
+            self.computer.play_on_grid(grid, "X", "O")
+            self.assertNumberOfPlaysOnGrid(grid.get_grid(), 3, Grid.textual_positions[move_2])
+    def test_computer_can_block(self):
+        self.grid.play('top_right')  # X
+        self.grid.play('top_left')  # O
+        self.grid.play('bottom_middle')  # X
+        self.grid.play('middle_left')  # O
+        self.computer.play_on_grid(self.grid, "X", "O")  # X
+        grid_s = self.grid.get_grid()
+        self.assertNumberOfPlaysOnGrid(grid_s, 5)
+        self.assertEqual(grid_s, "O XO  XX ")
+    def test_computer_plays_in_center_if_unoccupied_and_not_first_move(self):
+        for move_1 in range(0, 9):
+            grid = Grid("XO")  # Use new grid each time
+            grid.play(Grid.textual_positions[move_1])
+            self.computer.play_on_grid(grid, "O", "X")
+            self.assertNumberOfPlaysOnGrid(grid.get_grid(), 2, Grid.textual_positions[move_1])
+            expected_grid = ["X" if i==move_1 else " " for i in range(0, 9)]
+            if move_1 != 4:
+                expected_grid[4] = "O"
+            else:
+                expected_grid[0] = "O"
+            self.assertEqual(grid.get_grid(), "".join(expected_grid))
+    def test_computer_starts_in_the_corner(self):  # best probabilistic strategy
+        self.computer.play_on_grid(self.grid, "X", "O")
+        grid_s = self.grid.get_grid()
+        self.assertNumberOfPlaysOnGrid(grid_s, 1)
+        X_index = grid_s.find("X")
+        self.assertTrue(X_index in (0, 2, 6, 8))
+    def test_computer_detects_and_plays_a_fork(self):
+        self.grid.play('top_left')
+        self.grid.play('top_middle')
+        self.grid.play('center')
+        self.grid.play('bottom_right')
+        self.computer.play_on_grid(self.grid, "X", "O")
+        grid_str = self.grid.get_grid()
+        self.assertNumberOfPlaysOnGrid(grid_str, 5)
+        self.assertIn(grid_str, ("XO XX   O", "XO  X X O"))
+    def test_computer_detects_and_blocks_fork(self):
+        self.grid.play('center')
+        self.computer.play_on_grid(self.grid, "O", "X")
+        self.grid.play('bottom_right')
+        self.computer.play_on_grid(self.grid, "O", "X")
+        grid_str = self.grid.get_grid()
+        self.assertNumberOfPlaysOnGrid(grid_str, 4)
+        self.assertEqual(grid_str, "O O X   X")
 
 if __name__ == '__main__':
     unittest.main()
