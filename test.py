@@ -273,8 +273,20 @@ class TTTComputer:
         # Try to detect a fork for opponent and play (block) there
         fork_move_for_opponent = self._detect_fork_move_for_mark(grid_s, vs_mark, with_mark)
         if fork_move_for_opponent:  # Non-empty list
-            grid.play(Grid.textual_positions[fork_move_for_opponent[0]])
-            return
+            if len(fork_move_for_opponent) == 1:  # one fork; immediate threat - should block
+                grid.play(Grid.textual_positions[fork_move_for_opponent[0]])
+                return
+            else:
+                # Only block a fork if it doesn't force a block which is a fork
+                for move in fork_move_for_opponent:
+                    grid_after_block_fork = grid_s[0:move] + with_mark + grid_s[move+1:]
+                    forced_defensive_moves = self._try_to_avoid_loss(grid_after_block_fork, with_mark)
+                    for forced_block in forced_defensive_moves:  # Opponent forced to defend
+                        grid_after_defend = (grid_after_block_fork[0:forced_block] +
+                                             vs_mark + grid_after_block_fork[forced_block+1:])
+                        if len(self._try_to_avoid_loss(grid_after_defend, vs_mark)) < 2:
+                            grid.play(Grid.textual_positions[move])
+                            return
         # If center is not taken, take it, except on first move
         if number_of_plays > 0 and grid_s[4] == " ":
             grid.play('center')
@@ -419,6 +431,24 @@ class TTT_computer_test(unittest.TestCase):
         grid_str = self.grid.get_grid()
         self.assertNumberOfPlaysOnGrid(grid_str, 4)
         self.assertEqual(grid_str, "O O X   X")
+    def test_computer_detects_and_blocks_fork_not_forcing_another_fork(self):
+        self.grid.play('top_left')
+        self.grid.play('center')
+        self.grid.play('bottom_right')
+        self.computer.play_on_grid(self.grid, "O", "X")
+        self.assertNumberOfPlaysOnGrid(self.grid.get_grid(), 4)
+        self.assertNotIn(self.grid.get_grid(), ("X O O   X", "X   O O X"))
+    def _test_computer_draws_against_itself(self):
+        for idx in range(0, 4):
+            self.computer.play_on_grid(self.grid, "X", "O")
+            self.print_grid_2d(self.grid.get_grid())
+            self.assertIsNone(self.grid.get_winning_player())
+            self.computer.play_on_grid(self.grid, "O", "X")
+            self.print_grid_2d(self.grid.get_grid())
+            self.assertIsNone(self.grid.get_winning_player())
+        self.computer.play_on_grid(self.grid, "X", "O")
+        self.print_grid_2d(self.grid.get_grid())
+        self.assertIsNone(self.grid.get_winning_player())
 
 if __name__ == '__main__':
     unittest.main()
